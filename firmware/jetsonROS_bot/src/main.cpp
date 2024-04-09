@@ -1,329 +1,99 @@
-#include <Arduino.h>
 #include <ros.h>
 #include <geometry_msgs/Twist.h>
 #include <std_msgs/Float64.h>
-
-
-// Pin definitions for motor control
-const int motorFL1 = 20;    // Front-left motor positive
-const int motorFL2 = 1;    // Front-left motor negative
-const int motorFL_Enable = 21;  // Front-left motor enable pin
-
-const int motorFR1 = 6;    // Front-right motor positive
-const int motorFR2 = 8;    // Front-right motor negative
-const int motorFR_Enable = 5;  // Front-right motor enable pin
-
-const int motorBL1 = 23;    // Back-left motor positive
-const int motorBL2 = 0;    // Back-left motor negative
-const int motorBL_Enable = 22; // Back-left motor enable pin
-
-const int motorBR1 = 3;   // Back-right motor positive
-const int motorBR2 = 2;   // Back-right motor negative
-const int motorBR_Enable = 4; // Back-right motor enable pin
+#include <motor_control.h>
 
 double radius = 0.04;
 double ly = 0.146;
 double lx = 0.11;
-ros::NodeHandle  nh;
+double lower_speed_limit = 0;
+double upper_speed_limit = 25;
 
-double w_fl;
-double w_fr;
-double w_rl;
-double w_rr;
+double lower_pwm_limit = 0;
+double upper_pwm_limit = 255;
 
-double Vx= 0;
-double Vy =0;
-double Wz = 0;
+ros::NodeHandle nh;
 
-double Vx_ = 0;
-double Vy_ = 0;
-double Wz_ = 0;
-
-// Function to move the robot forward
-void straightAhead() {
-  // Set enable pins HIGH to enable the motors
-  digitalWrite(motorFL_Enable, HIGH);
-  digitalWrite(motorFR_Enable, HIGH);
-  digitalWrite(motorBL_Enable, HIGH);
-  digitalWrite(motorBR_Enable, HIGH);
-
-  digitalWrite(motorFL1, HIGH);
-  digitalWrite(motorFL2, LOW);
-
-  digitalWrite(motorFR1, HIGH);
-  digitalWrite(motorFR2, LOW);
-
-  digitalWrite(motorBL1, HIGH);
-  digitalWrite(motorBL2, LOW);
-
-  digitalWrite(motorBR1, HIGH);
-  digitalWrite(motorBR2, LOW);
-}
-void straightBack() {
-  // Set enable pins HIGH to enable the motors
-  digitalWrite(motorFL_Enable, HIGH);
-  digitalWrite(motorFR_Enable, HIGH);
-  digitalWrite(motorBL_Enable, HIGH);
-  digitalWrite(motorBR_Enable, HIGH);
-
-  digitalWrite(motorFL1, LOW);
-  digitalWrite(motorFL2, HIGH);
-
-  digitalWrite(motorFR1, LOW);
-  digitalWrite(motorFR2, HIGH);
-
-  digitalWrite(motorBL1, LOW);
-  digitalWrite(motorBL2, HIGH);
-
-  digitalWrite(motorBR1, LOW);
-  digitalWrite(motorBR2, HIGH);
-}
-
-void sideWay() {
-  // Set enable pins HIGH to enable the motors
-  digitalWrite(motorFL_Enable, HIGH);
-  digitalWrite(motorFR_Enable, HIGH);
-  digitalWrite(motorBL_Enable, HIGH);
-  digitalWrite(motorBR_Enable, HIGH);
-
-  digitalWrite(motorFL1, HIGH);
-  digitalWrite(motorFL2, LOW);
-
-  digitalWrite(motorFR1, LOW);
-  digitalWrite(motorFR2, HIGH);
-
-  digitalWrite(motorBL1, LOW);
-  digitalWrite(motorBL2, HIGH);
-
-  digitalWrite(motorBR1, HIGH);
-  digitalWrite(motorBR2, LOW);
-}
-void sideWayInv() {
-  // Set enable pins HIGH to enable the motors
-  digitalWrite(motorFL_Enable, HIGH);
-  digitalWrite(motorFR_Enable, HIGH);
-  digitalWrite(motorBL_Enable, HIGH);
-  digitalWrite(motorBR_Enable, HIGH);
-
-  digitalWrite(motorFL1, LOW);
-  digitalWrite(motorFL2, HIGH);
-
-  digitalWrite(motorFR1, HIGH);
-  digitalWrite(motorFR2, LOW);
-
-  digitalWrite(motorBL1, HIGH);
-  digitalWrite(motorBL2, LOW);
-
-  digitalWrite(motorBR1, LOW);
-  digitalWrite(motorBR2, HIGH);
-}
-
-/*
-void diagonal() {
-  // Set enable pins HIGH to enable the motors
-  digitalWrite(motorFL_Enable, HIGH);
-  digitalWrite(motorFR_Enable, LOW);
-  digitalWrite(motorBL_Enable, LOW);
-  digitalWrite(motorBR_Enable, HIGH);
-
-  digitalWrite(motorFL1, HIGH);
-  digitalWrite(motorFL2, LOW);
-
-  digitalWrite(motorFR1, LOW);
-  digitalWrite(motorFR2, HIGH);
-
-  digitalWrite(motorBL1, LOW);
-  digitalWrite(motorBL2, HIGH);
-
-  digitalWrite(motorBR1, HIGH);
-  digitalWrite(motorBR2, LOW);
-}
-
-void concerning() {
-  // Set enable pins HIGH to enable the motors
-  digitalWrite(motorFL_Enable, HIGH);
-  digitalWrite(motorFR_Enable, LOW);
-  digitalWrite(motorBL_Enable, HIGH);
-  digitalWrite(motorBR_Enable, LOW);
-
-  digitalWrite(motorFL1, HIGH);
-  digitalWrite(motorFL2, LOW);
-
-  digitalWrite(motorFR1, LOW);
-  digitalWrite(motorFR2, HIGH);
-
-  digitalWrite(motorBL1, HIGH);
-  digitalWrite(motorBL2, LOW);
-
-  digitalWrite(motorBR1, LOW);
-  digitalWrite(motorBR2, HIGH);
-}
-*/
-void turnRound() {
-  // Set enable pins HIGH to enable the motors
-  digitalWrite(motorFL_Enable, HIGH);
-  digitalWrite(motorFR_Enable, HIGH);
-  digitalWrite(motorBL_Enable, HIGH);
-  digitalWrite(motorBR_Enable, HIGH);
-
-  digitalWrite(motorFL1, HIGH);
-  digitalWrite(motorFL2, LOW);
-
-  digitalWrite(motorFR1, LOW);
-  digitalWrite(motorFR2, HIGH);
-
-  digitalWrite(motorBL1, HIGH);
-  digitalWrite(motorBL2, LOW);
-
-  digitalWrite(motorBR1, LOW);
-  digitalWrite(motorBR2, HIGH);
-}
-void turnRoundInv() {
-  // Set enable pins HIGH to enable the motors
-  digitalWrite(motorFL_Enable, HIGH);
-  digitalWrite(motorFR_Enable, HIGH);
-  digitalWrite(motorBL_Enable, HIGH);
-  digitalWrite(motorBR_Enable, HIGH);
-
-  digitalWrite(motorFL1, LOW);
-  digitalWrite(motorFL2, HIGH);
-
-  digitalWrite(motorFR1, HIGH);
-  digitalWrite(motorFR2, LOW);
-
-  digitalWrite(motorBL1, LOW);
-  digitalWrite(motorBL2, HIGH);
-
-  digitalWrite(motorBR1, HIGH);
-  digitalWrite(motorBR2, LOW);
-}
-
-void OFF() {
-  // Set enable pins HIGH to enable the motors
-  digitalWrite(motorFL_Enable, LOW);
-  digitalWrite(motorFR_Enable, LOW);
-  digitalWrite(motorBL_Enable, LOW);
-  digitalWrite(motorBR_Enable, LOW);
-}
-/*
-void turnOfRearAxis() {
-  // Set enable pins HIGH to enable the motors
-  digitalWrite(motorFL_Enable, HIGH);
-  digitalWrite(motorFR_Enable, HIGH);
-  digitalWrite(motorBL_Enable, LOW);
-  digitalWrite(motorBR_Enable, LOW);
-
-  digitalWrite(motorFL1, HIGH);
-  digitalWrite(motorFL2, LOW);
-
-  digitalWrite(motorFR1, HIGH);
-  digitalWrite(motorFR2, LOW);
-
-  digitalWrite(motorBL1, LOW);
-  digitalWrite(motorBL2, HIGH);
-
-  digitalWrite(motorBR1, LOW);
-  digitalWrite(motorBR2, HIGH);
-}
-*/
-
-void commandCallback(const geometry_msgs::Twist& cmd_msg)
+void commandCallback(const geometry_msgs::Twist &cmd_msg)
 {
 
   Vx = cmd_msg.linear.x;
   Vy = cmd_msg.linear.y;
   Wz = cmd_msg.angular.z;
-
-  w_fl= (1/radius)*(Vx-Vy-(lx+ly)*Wz);
-  w_fr= (1/radius)*(Vx+Vy+(lx+ly)*Wz);
-  w_rl= (1/radius)*(Vx+Vy-(lx+ly)*Wz);
-  w_rr= (1/radius)*(Vx-Vy+(lx+ly)*Wz);
-
-  /*w_fl= (1/radius)*(cmd_msg.linear.x-cmd_msg.linear.y-(lx+ly)*cmd_msg.angular.z);
-   w_fr= (1/radius)*(cmd_msg.linear.x+cmd_msg.linear.y+(lx+ly)*cmd_msg.angular.z);
-   w_rl= (1/radius)*(cmd_msg.linear.x+cmd_msg.linear.y-(lx+ly)*cmd_msg.angular.z);
-   w_rr= (1/radius)*(cmd_msg.linear.x-cmd_msg.linear.y+(lx+ly)*cmd_msg.angular.z);
-  */
-  Vx_ = (w_fl+w_fr+w_rl+w_rr)*(radius/4); 
-  Vy_ = (-w_fl+w_fr+w_rl-w_rr)*(radius/4); 
-  Wz_ = (-w_fl+w_fr-w_rl+w_rr)*(radius/(4*(lx+ly))); 
-  
-
-
-  if (Vx_ > 0){
-    straightAhead();
-  }
-  else if (Vy_ > 0 ){
-    sideWay();
-  }
-  else if (Wz_ > 0 ){
-    turnRound();
-  }
-  else if (Wz_ < 0 ){
-    turnRoundInv();
-  }
-  else if (Vx_ < 0 ){
-    straightBack();
-  }
-  else if (Vy_ < 0 ){
-    sideWayInv();
-
-  }
-  else {
-    OFF();
-  }
-
 }
 
-ros::Subscriber<geometry_msgs::Twist>sub("spyzr_controller/cmd_vel", &commandCallback );
+void FourMecanumKinematic()
+{
+  // forward kinematics of a Four Mecanum Wheeled Mobile Robot
+  w_fl = (1 / radius) * (Vx - Vy - (lx + ly) * Wz);
+  w_fr = (1 / radius) * (Vx + Vy + (lx + ly) * Wz);
+  w_rl = (1 / radius) * (Vx + Vy - (lx + ly) * Wz);
+  w_rr = (1 / radius) * (Vx - Vy + (lx + ly) * Wz);
 
-void setup() {
-  // Set motor control pins as outputs
-  pinMode(motorFL1, OUTPUT);
-  pinMode(motorFL2, OUTPUT);
-  pinMode(motorFL_Enable, OUTPUT);
+  // inverse kinematics of a Four Mecanum Wheeled Mobile Robot
+  // Vx_ = (w_fl + w_fr + w_rl + w_rr) * (radius / 4);
+  // Vy_ = (-w_fl + w_fr + w_rl - w_rr) * (radius / 4);
+  // Wz_ = (-w_fl + w_fr - w_rl + w_rr) * (radius / (4 * (lx + ly)));
 
-  pinMode(motorFR1, OUTPUT);
-  pinMode(motorFR2, OUTPUT);
-  pinMode(motorFR_Enable, OUTPUT);
+  pwm_fl = abs(map(w_fl, lower_speed_limit, upper_speed_limit, lower_pwm_limit, upper_pwm_limit));
+  pwm_fr = abs(map(w_fr, lower_speed_limit, upper_speed_limit, lower_pwm_limit, upper_pwm_limit));
+  pwm_rl = abs(map(w_rl, lower_speed_limit, upper_speed_limit, lower_pwm_limit, upper_pwm_limit));
+  pwm_rr = abs(map(w_rr, lower_speed_limit, upper_speed_limit, lower_pwm_limit, upper_pwm_limit));
 
-  pinMode(motorBL1, OUTPUT);
-  pinMode(motorBL2, OUTPUT);
-  pinMode(motorBL_Enable, OUTPUT);
+  Serial.print("front left W: ");
+  Serial.println(w_fl);
 
-  pinMode(motorBR1, OUTPUT);
-  pinMode(motorBR2, OUTPUT);
-  pinMode(motorBR_Enable, OUTPUT);
+  Serial.print("front left pwm: ");
+  Serial.println(pwm_fl);
+  if (Vx > 0)
+  {
+    straightAhead(pwm_fl, pwm_fr, pwm_rl, pwm_rr);
+  }
+  else if (Vy > 0)
+  {
+    sideWay(pwm_fl, pwm_fr, pwm_rl, pwm_rr);
+  }
+  else if (Wz > 0)
+  {
+    turnRound(pwm_fl, pwm_fr, pwm_rl, pwm_rr);
+  }
+  else if (Wz < 0)
+  {
+    turnRoundInv(pwm_fl, pwm_fr, pwm_rl, pwm_rr);
+  }
+  else if (Vx < 0)
+  {
+    straightBack(pwm_fl, pwm_fr, pwm_rl, pwm_rr);
+  }
+  else if (Vy < 0)
+  {
+    sideWayInv(pwm_fl, pwm_fr, pwm_rl, pwm_rr);
+  }
+  else
+  {
+    OFF();
+  }
+}
+
+ros::Subscriber<geometry_msgs::Twist> sub("/cmd_vel", &commandCallback);
+
+void setup()
+{
+
   // Inizialize the ROS node on the Arduino
   nh.initNode();
+  motorsSetup();
+  Serial.begin(9600);
   // Inform ROS that this node will subscribe to messages on a given topic
   nh.subscribe(sub);
 }
 
-void loop() {
-  // Move straight
-  //straightAhead();
-  //delay(2000);  // Wait for 2 seconds
+void loop()
+{
 
-  // Move sideway
-  // sideWay();
-  // delay(2000);  // Wait for 2 seconds
-
-  // move diagonal
-  //diagonal();
-  //delay(2000);  // Wait for 2 seconds
-
-  // move concerning
-  // concerning();
-  // delay(2000);  // Wait for 2 seconds
-
-  // move turnRound
-  //turnRound();
-  //delay(2000);  // Wait for 2 seconds
+  FourMecanumKinematic();
   nh.spinOnce();
   delay(1);
-  // move turnOfRearAxis
-  // turnOfRearAxis();
-  //delay(2000);  // Wait for 2 seconds
-}
 
+  // delay(2000);  // Wait for 2 seconds
+}
