@@ -2,21 +2,26 @@
 
 
 // Pin definitions for motor control
-const int motorFL1 = 20;       // Front-left motor positive
-const int motorFL2 = 1;        // Front-left motor negative
-const int motorFL_Enable = 21; // Front-left motor enable pin
+const int motorFL1 = 2;       // Front-left motor positive
+const int motorFL2 = 3;        // Front-left motor negative
+const int motorFL_Enable = 4; // Front-left motor enable pin
 
-const int motorFR1 = 6;       // Front-right motor positive
-const int motorFR2 = 8;       // Front-right motor negative
-const int motorFR_Enable = 5; // Front-right motor enable pin
+const int motorBL1 = 7;       // Back-left motor positive
+const int motorBL2 = 8;        // Back-left motor negative
+const int motorBL_Enable = 9; // Back-left motor enable pin
 
-const int motorBL1 = 23;       // Back-left motor positive
-const int motorBL2 = 0;        // Back-left motor negative
-const int motorBL_Enable = 22; // Back-left motor enable pin
 
-const int motorBR1 = 3;       // Back-right motor positive
-const int motorBR2 = 2;       // Back-right motor negative
-const int motorBR_Enable = 4; // Back-right motor enable pin
+const int motorBR1 = 13;       // Back-right motor positive
+const int motorBR2 = 14;       // Back-right motor negative
+const int motorBR_Enable = 15; // Back-right motor enable pin
+
+const int motorFR1 = 20;       // Front-right motor positive
+const int motorFR2 = 21;       // Front-right motor negative
+const int motorFR_Enable = 22; // Front-right motor enable pin
+
+
+
+
 
 double w_fl;
 double w_fr;

@@ -1,4 +1,4 @@
-robot_radius: 0.31
+robot_radius: 0.155
 footprint_padding: 0.00
 
 robot_base_frame: base_footprint
