@@ -4,9 +4,9 @@
 #include <motor_control.h>
 #include <mpu6050.h>
 
-double radius = 0.04;
-double ly = 0.146;
-double lx = 0.11;
+double radius = 0.035;
+double ly = 0.18;
+double lx = 0.27;
 double lower_speed_limit = 0;
 double upper_speed_limit = 25;
 
