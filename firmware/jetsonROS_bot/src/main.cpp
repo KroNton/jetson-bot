@@ -2,6 +2,7 @@
 #include <geometry_msgs/Twist.h>
 #include <std_msgs/Float64.h>
 #include <motor_control.h>
+#include <mpu6050.h>
 
 double radius = 0.04;
 double ly = 0.146;
@@ -13,6 +14,7 @@ double lower_pwm_limit = 0;
 double upper_pwm_limit = 255;
 
 ros::NodeHandle nh;
+ros::Publisher imu_pub("imu_raw", &floatArrayMsg);
 
 void commandCallback(const geometry_msgs::Twist &cmd_msg)
 {
@@ -40,11 +42,11 @@ void FourMecanumKinematic()
   pwm_rl = abs(map(w_rl, lower_speed_limit, upper_speed_limit, lower_pwm_limit, upper_pwm_limit));
   pwm_rr = abs(map(w_rr, lower_speed_limit, upper_speed_limit, lower_pwm_limit, upper_pwm_limit));
 
-  Serial.print("front left W: ");
-  Serial.println(w_fl);
+  // Serial.print("front left W: ");
+  // Serial.println(w_fl);
 
-  Serial.print("front left pwm: ");
-  Serial.println(pwm_fl);
+  // Serial.print("front left pwm: ");
+  // Serial.println(pwm_fl);
   if (Vx > 0)
   {
     straightAhead(pwm_fl, pwm_fr, pwm_rl, pwm_rr);
@@ -83,15 +85,19 @@ void setup()
   // Inizialize the ROS node on the Arduino
   nh.initNode();
   motorsSetup();
-  Serial.begin(9600);
+  // Serial.begin(9600);
   // Inform ROS that this node will subscribe to messages on a given topic
   nh.subscribe(sub);
+  nh.advertise(imu_pub);
+  setupIMU();
 }
 
 void loop()
 {
 
   FourMecanumKinematic();
+  publishIMU();
+  imu_pub.publish(&floatArrayMsg);
   nh.spinOnce();
   delay(1);
 

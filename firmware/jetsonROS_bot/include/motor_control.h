@@ -30,7 +30,7 @@ double w_rr;
 
 double Vx = 0.0;
 double Vy = 0.0;
-double Wz = 0.7;
+double Wz = 0.0;
 
 // double Vx_ = 0;
 // double Vy_ = 0;
