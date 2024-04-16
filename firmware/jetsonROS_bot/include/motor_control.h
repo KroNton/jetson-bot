@@ -6,13 +6,13 @@ const int motorFL1 = 2;       // Front-left motor positive
 const int motorFL2 = 3;        // Front-left motor negative
 const int motorFL_Enable = 4; // Front-left motor enable pin
 
-const int motorBL1 = 7;       // Back-left motor positive
-const int motorBL2 = 8;        // Back-left motor negative
+const int motorBL1 = 8;       // Back-left motor positive
+const int motorBL2 = 7;        // Back-left motor negative
 const int motorBL_Enable = 9; // Back-left motor enable pin
 
 
-const int motorBR1 = 13;       // Back-right motor positive
-const int motorBR2 = 14;       // Back-right motor negative
+const int motorBR1 = 14;       // Back-right motor positive
+const int motorBR2 = 13;       // Back-right motor negative
 const int motorBR_Enable = 15; // Back-right motor enable pin
 
 const int motorFR1 = 20;       // Front-right motor positive

@@ -4,14 +4,20 @@
 #include <motor_control.h>
 #include <mpu6050.h>
 
+#define COMMAND_RATE 5 // hz
+
 double radius = 0.035;
 double ly = 0.18;
 double lx = 0.27;
 double lower_speed_limit = 0;
-double upper_speed_limit = 25;
+double upper_speed_limit = 10;
 
 double lower_pwm_limit = 0;
 double upper_pwm_limit = 255;
+
+static unsigned long prev_control_time = 0;
+static unsigned long now = 0;
+static unsigned long lastTime = 0;
 
 ros::NodeHandle nh;
 ros::Publisher imu_pub("imu_raw", &floatArrayMsg);
@@ -95,10 +101,19 @@ void setup()
 void loop()
 {
 
-  FourMecanumKinematic();
-  publishIMU();
+  // now = millis();
+  // int timeChange = (now - lastTime);
+  // if ((millis() - prev_control_time) >= (1000 / COMMAND_RATE))
+  // {
+    FourMecanumKinematic();
+    publishIMU();
+
+    // lastTime = now;
+  // }
+
   imu_pub.publish(&floatArrayMsg);
   nh.spinOnce();
+
   delay(1);
 
   // delay(2000);  // Wait for 2 seconds

@@ -22,6 +22,7 @@
     <rosparam file="$(find jetbot_navigation)/config/costmap_local.yaml" command="load" ns="local_costmap" />
     <param name="local_costmap/width" value="10.0"/>
     <param name="local_costmap/height" value="10.0"/>
+    <param name="TrajectoryPlannerROS/max_rotational_vel" value="0.6"/>
 
     <!-- static global costmap, static map provides size -->
     <rosparam file="$(find husky_navigation)/config/costmap_global_static.yaml" command="load" ns="global_costmap" unless="$(arg no_static_map)"/>
